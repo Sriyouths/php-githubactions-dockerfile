@@ -1,0 +1,60 @@
+name: Trigger auto deployment for ansalemo-branch-test-2
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/ansalemo-branch-test-2-AutoDeployTrigger-9018c1dd-31da-4816-9d8c-4edf32b4ac64.yml'
+
+  # Allow mannually trigger 
+  workflow_dispatch:      
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ansalemoacr.azurecr.io
+          username: ${{ secrets.ANSALEMOBRANCHTEST2_REGISTRY_USERNAME }}
+          password: ${{ secrets.ANSALEMOBRANCHTEST2_REGISTRY_PASSWORD }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ansalemoacr.azurecr.io/ansalemo-branch-test-2:${{ github.sha }}
+          file: ./Dockerfile
+          context: ./
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.ANSALEMOBRANCHTEST2_AZURE_CREDENTIALS }}
+
+
+      - name: Deploy to containerapp
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp registry set -n ansalemo-branch-test-2 -g ansalemo-rg --server ansalemoacr.azurecr.io --username  ${{ secrets.ANSALEMOBRANCHTEST2_REGISTRY_USERNAME }} --password ${{ secrets.ANSALEMOBRANCHTEST2_REGISTRY_PASSWORD }}
+            az containerapp update -n ansalemo-branch-test-2 -g ansalemo-rg --image ansalemoacr.azurecr.io/ansalemo-branch-test-2:${{ github.sha }}
