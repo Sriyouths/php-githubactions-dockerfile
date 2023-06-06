@@ -5,7 +5,7 @@ on:
   # Automatically trigger it when detected changes in repo
   push:
     branches: 
-      [ main ]
+      [ sena/new ]
     paths:
     - '**'
     - '.github/workflows/ansalemo-php-gh-test-AutoDeployTrigger-2fe4fcd0-4abd-4822-97b5-2625054861d5.yml'

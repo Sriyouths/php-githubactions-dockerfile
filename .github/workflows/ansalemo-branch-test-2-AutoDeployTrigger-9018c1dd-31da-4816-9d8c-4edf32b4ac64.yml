@@ -5,7 +5,7 @@ on:
   # Automatically trigger it when detected changes in repo
   push:
     branches: 
-      [ main ]
+      [ sena/new ]
     paths:
     - '**'
     - '.github/workflows/ansalemo-branch-test-2-AutoDeployTrigger-9018c1dd-31da-4816-9d8c-4edf32b4ac64.yml'
