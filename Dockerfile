@@ -18,3 +18,5 @@ COPY sshd_config /etc/ssh/
 EXPOSE 80 2222
 
 ENTRYPOINT [ "/opt/init_container.sh" ]
+
+cvjkjvc
